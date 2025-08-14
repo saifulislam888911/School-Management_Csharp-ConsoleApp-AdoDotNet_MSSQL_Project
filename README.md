@@ -1,5 +1,6 @@
 # School-Management_Csharp-ConsoleApp-AdoDotNet_MSSQL_Project
 Summary : C#, Console App, ADO.NET, MSSQL.
+
 Version :
 - SDK : Microsoft.NET.Sdk (.NET 9.0)
 - NuGet Package (NuGet Dependency) : Microsoft.Data.SqlClient (v6.0.2)
