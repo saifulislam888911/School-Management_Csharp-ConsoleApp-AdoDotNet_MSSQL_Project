@@ -1,0 +1,89 @@
+# -------------------- C Sharp (start) --------------------
+
+# Visual Studio temporary files, build results, etc (ফাইল ও ফোল্ডার)
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+
+
+
+# Build output folders (বিল্ড আউটপুট)
+bin/
+obj/
+Debug/
+Release/
+publish/
+
+
+
+# NuGet packages and artifacts (প্যাকেজ ফোল্ডার)
+*.nupkg
+packages/
+.nuget/
+project.lock.json
+*.symbols.nupkg
+
+
+
+# Dotnet binaries / debug / database files
+*.dll
+*.exe
+*.pdb
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+
+
+# Configuration / secrets (do NOT commit secrets to repo)
+#-- (Check Before Stage and Commit)
+appsettings.Development.json
+secrets.json
+.env
+# (appsettings.json non-sensitive হলে commit করতে পারো, but keep dev/local secrets out)
+
+
+
+# Test results / coverage (ঐচ্ছিক: টেস্ট আউটপুট)
+TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+
+
+# OS files (OS স্পেসিফিক)
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+
+
+# Logs (ঐচ্ছিক: লগ ফাইল)
+*.log
+logs/
+
+
+
+# Misc (ঐচ্ছিক: টেম্প ফাইল)
+*.userprefs
+*.cache
+*.bak
+*.tmp
+
+
+
+# VS Code workspace settings (optional)
+.vscode/
+
+
+
+# Rider IDE (সাপোর্ট ফাইল)
+.idea/
+*.sln.iml
+
+# -------------------- C Sharp (end) --------------------
