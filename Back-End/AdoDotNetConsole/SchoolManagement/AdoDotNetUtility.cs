@@ -17,19 +17,9 @@ namespace SchoolManagement
         }
 
         public void ExecuteSql(string sql)
-        {
-            
+        {  
             using SqlConnection connection = new SqlConnection(_connectionString);
             using SqlCommand command = new SqlCommand(sql, connection);
-            /* [NOTE :
-                # using : 
-                  'using' keyword before Declaring Object -
-                  Automatic Destroy the Object After Ending of the code,
-                  After Passing the End Curly Bracket of the code.
-                  No Need to use Dispose.
-                  (this keyword Only working on those objects' 
-                  who implement 'IDisposable' Interface)] 
-            */
 
             if (connection.State != System.Data.ConnectionState.Open)
             {
@@ -38,12 +28,6 @@ namespace SchoolManagement
 
             int effectRowCount = command.ExecuteNonQuery();
             Console.WriteLine("Row Efected : " + effectRowCount + "; Operation Done");
-
-            /*
-            connection.Close();
-            command.Dispose();  // [NOTE : Dispose : Destroy the Object.] 
-            connection.Dispose();
-            */
         }
     }
 }

@@ -7,6 +7,6 @@ string updateSql = "UPDATE Student SET StudentName='SLLL' WHERE StudentName='Sll
 string deleteSql = "DELETE FROM Student WHERE StudentId=1;";
 
 AdoDotNetUtility adoDotNetUtility = new AdoDotNetUtility(connectionString);
-//adoDotNetUtility.ExecuteSql(insertSql);
+adoDotNetUtility.ExecuteSql(insertSql);
 //adoDotNetUtility.ExecuteSql(updateSql);
-adoDotNetUtility.ExecuteSql(deleteSql);
+//adoDotNetUtility.ExecuteSql(deleteSql);
