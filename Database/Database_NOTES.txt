@@ -1,0 +1,209 @@
+1. Safe Way to Drop & Create Database :
+	- SQL Server‑এ CREATE DATABASE  কমান্ড যদি এমন কোনো নামের ডেটাবেসকে তৈরি করতে চায়, যেটা আগে থেকেই আছে, 
+	তাহলে error দিবে : 
+		Msg 1801, Level 16, State 3, Line 1  
+		Database 'YourDB' already exists.
+	- তাই, যদি তুমি চাও যে আগেরটা drop করে নতুন করে create হোক, তাহলে তোমাকে আগে থেকে check করে drop করতে হবে।
+	- Example : 
+			IF EXISTS (SELECT name FROM sys.databases WHERE name = N'YourDB')
+			BEGIN
+			    ALTER DATABASE YourDB SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+			    DROP DATABASE YourDB;
+			END
+
+			CREATE DATABASE YourDB;
+
+	- IF EXISTS → চেক করে ডেটাবেস আছে কি
+	- ALTER DATABASE ... SINGLE_USER → অন্য কেউ ব্যবহার করলে disconnect - করে
+	- DROP DATABASE → আগেরটা মুছে ফেলে
+	- CREATE DATABASE → নতুন করে তৈরি করে
+
+	⚠️ সতর্কতা:
+	- এই স্ক্রিপ্ট রান করলে আগের ডেটা permanently delete হয়ে যাবে
+	- তাই production environment‑এ ব্যবহার করার আগে backup রাখা জরুরি
+
+
+
+2. Script DROP and CREATE : for clean table setup
+
+	- এই অপশন বলে দেয়, স্ক্রিপ্টে প্রতিটি অবজেক্টের আগে DROP  কমান্ড থাকবে, তারপর CREATE  কমান্ড।
+	- যদি ওই টেবিল/ভিউ/প্রোসিডিউর আগেই থাকে, তাহলে আগে ডিলিট করে নতুন করে তৈরি করবে।
+	- এতে duplicate error বা “object already exists” সমস্যা হয় না।
+	- যদি Script CREATE only সিলেক্ট করো -> যদি  টেবিল আগেই থাকে, তাহলে error: “Table already exists.”
+	- যদি Script DROP and CREATE সিলেক্ট করো -> আগেরটা থাকলে ডিলিট করে নতুনটা তৈরি করবে — smooth execution!
+	- যদি  করা হয়, আগের ডেটা মুছে যাবে — তাই ডেটা backup থাকলে ভালো।
+
+	- Example :
+			-- Drop the table if it already exists
+			DROP TABLE IF EXISTS Customers;
+
+			-- Create the table
+			CREATE TABLE Customers (
+    				CustomerId INT PRIMARY KEY IDENTITY(1,1),
+    				FullName NVARCHAR(100) NOT NULL,
+    				Email NVARCHAR(100) UNIQUE,
+    				PhoneNumber NVARCHAR(20),
+    				JoinDate DATE DEFAULT GETDATE()
+			);
+
+	- উদ্দেশ্য: এই স্ক্রিপ্টটি Customer  টেবিলটি নতুন করে তৈরি করে, আগের টেবিল থাকলে তা ডিলিট করে। এতে করে conflict বা error হয় না।
+ DROP TABLE IF EXISTS দিয়ে আগের টেবিল মুছে ফেলা হয়, তারপর CREATE  দিয়ে নতুন টেবিল তৈরি হয়।
+
+
+
+3. Example :
+	MSSQL‑এর জন্য একটা full setup script বানিয়ে দিতে পারি, যেখানে database, tables, sample data—all in one থাকবে, GitHub‑ready style‑এ।
+
+_____________________________________________
+
+	-- =============================================
+	-- Author: Saiful Islam
+	-- Description: Drop/Create Database, Tables & Sample Data
+	-- =============================================
+
+	-- 1) Drop এবং Create Database
+
+	IF EXISTS (SELECT 1 FROM sys.databases WHERE name = N'YourDB')
+	BEGIN
+	    ALTER DATABASE [YourDB] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+	    DROP DATABASE [YourDB];
+	END
+	CREATE DATABASE [YourDB];
+	GO
+
+	-- 2) Use the newly created database
+	
+	USE [YourDB];
+	GO
+
+	-- 3) Customers টেবিল Drop & Create
+
+	IF OBJECT_ID('dbo.Customers','U') IS NOT NULL
+	    DROP TABLE dbo.Customers;
+	GO
+
+	CREATE TABLE dbo.Customers (
+	    CustomerID    INT            IDENTITY(1,1) PRIMARY KEY,
+	    FirstName     NVARCHAR(50)   NOT NULL,
+	    LastName      NVARCHAR(50)   NOT NULL,
+	    Email         NVARCHAR(100)  UNIQUE,
+	    CreatedDate   DATETIME2      DEFAULT SYSDATETIME()
+	);
+	GO
+
+	-- 4) Products টেবিল Drop & Create
+	
+	IF OBJECT_ID('dbo.Products','U') IS NOT NULL
+	    DROP TABLE dbo.Products;
+	GO
+
+	CREATE TABLE dbo.Products (
+	    ProductID     INT            IDENTITY(1,1) PRIMARY KEY,
+	    ProductName   NVARCHAR(100)  NOT NULL,
+	    Price         DECIMAL(10,2)  NOT NULL,
+	    Stock         INT            NOT NULL
+	);
+	GO
+
+	-- 5) Orders টেবিল Drop & Create
+	
+	IF OBJECT_ID('dbo.Orders','U') IS NOT NULL
+	    DROP TABLE dbo.Orders;
+	GO
+
+	CREATE TABLE dbo.Orders (
+	    OrderID       INT            IDENTITY(1,1) PRIMARY KEY,
+	    CustomerID    INT            NOT NULL,
+	    OrderDate     DATETIME2      DEFAULT SYSDATETIME(),
+	    TotalAmount   DECIMAL(12,2)  NOT NULL,
+	    CONSTRAINT FK_Orders_Customers
+	        FOREIGN KEY (CustomerID)
+	        REFERENCES dbo.Customers (CustomerID)
+	);
+	GO
+
+	-- 6) Sample Data ইনসার্ট
+
+	INSERT INTO dbo.Customers (FirstName, LastName, Email)
+	VALUES
+	    ('John',  'Doe',   'john.doe@example.com'),
+	    ('Jane',  'Smith', 'jane.smith@example.com');
+	GO
+
+	INSERT INTO dbo.Products (ProductName, Price, Stock)
+	VALUES
+	    ('Widget',    19.99, 100),
+	    ('Gadget',    29.99,  50),
+	    ('Doohickey',  9.99, 200);
+	GO
+
+	INSERT INTO dbo.Orders (CustomerID, TotalAmount)
+	VALUES
+	    (1, 59.97),
+	    (2, 29.99);
+	GO
+_____________________________________________
+
+4. MSSQL Generated Script :
+
+_____________________________________________
+
+	USE [SchoolManagement]
+	GO
+	/****** Object:  Table [dbo].[Student]    Script Date: 8/23/2025 1:10:22 PM ******/
+	
+	IF  EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'[dbo].[Student]') AND type in (N'U'))
+	DROP TABLE [dbo].[Student]
+	GO
+	
+	/****** Object:  Table [dbo].[Student]    Script Date: 8/23/2025 1:10:22 PM ******/
+
+	SET ANSI_NULLS ON
+	GO
+
+	SET QUOTED_IDENTIFIER ON
+	GO
+
+	CREATE TABLE [dbo].[Student](
+		[StudentId] [int] IDENTITY(1,1) NOT NULL,
+		[StudentName] [nvarchar](50) NOT NULL,
+		[StudentAddress] [nvarchar](500) NULL,
+		[StudentCGPA] [decimal](18, 2) NULL,
+	 CONSTRAINT [PK_Student] PRIMARY KEY CLUSTERED 
+	(
+		[StudentId] ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+	) ON [PRIMARY]
+	GO
+
+	SET IDENTITY_INSERT [dbo].[Student] ON 
+
+INSERT [dbo].[Student] ([StudentId], [StudentName], [StudentAddress], [StudentCGPA]) VALUES (2, N'Sbbb', N'Dhaka', CAST(3.80 AS Decimal(18, 2)))
+INSERT [dbo].[Student] ([StudentId], [StudentName], [StudentAddress], [StudentCGPA]) VALUES (3, N'Sccc', N'Chittagong', CAST(4.00 AS Decimal(18, 2)))
+INSERT [dbo].[Student] ([StudentId], [StudentName], [StudentAddress], [StudentCGPA]) VALUES (17, N'Sooo', N'Dhaka', CAST(3.50 AS Decimal(18, 2)))
+SET IDENTITY_INSERT [dbo].[Student] OFF
+GO
+_____________________________________________
+
+5. কীভাবে রান করবেন :
+	- 	 স্থানে তোমার ডেটাবেসের নাম লিখে ওপরে SQL Server Management Studio (SSMS) বা Azure Data Studio তে এক্সিকিউট করো।
+	- 	স্ক্রিপ্ট প্রথমে আগের ডেটাবেস/টেবিলগুলো ড্রপ করবে, পরে নতুন করে তৈরি করবে—কোনো conflict বা error হবে না।
+	- 	শেষে sample data দিয়ে শুরুতেই working ডেটা থাকবে, ডেভেলপমেন্ট ও টেস্টিংয়ে কাজে লাগবে।
+
+	- 🔧 পরবর্তী ধাপ
+		1. 	টেবিল স্ট্রাকচার নিজ প্রয়োজনমতো এডিট বা এক্সটেন্ড করো।
+		2. 	আরো টেবিল, ভিউ, স্টোরড প্রসিডিউর যোগ করতে চাইলে একই  প্যাটার্ন ফলো করো।
+		3. 	কমিট করার আগে production এ ব্যবহার করলে অবশ্যই backup রাখবে।
+
+
+
+6. MSSQL Database : 
+
+	Create login/user manually as needed
+
+	or,
+
+	Use :
+		User Id = Practice_Admin
+		Password = 12345678
+		 

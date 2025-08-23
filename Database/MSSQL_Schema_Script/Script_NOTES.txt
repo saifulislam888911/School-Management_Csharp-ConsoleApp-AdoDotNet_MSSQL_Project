@@ -1,0 +1,15 @@
+
+1. CREATE NEW :
+
+		- SchoolManagement.sql
+ 
+		- With Schema and Data : SchoolManagement(Data).sql
+
+
+
+2. DROP (Previous If Any DB & Tables) and CREATE NEW :
+
+		- SchoolManagement(Drop&Create).sql
+ 
+		- With Schema and Data : SchoolManagement(Drop&Create)(Data).sql
+
