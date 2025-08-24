@@ -1,9 +1,4 @@
 ﻿using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SchoolManagement
 {
@@ -40,18 +35,6 @@ namespace SchoolManagement
 
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    /* [NOTE :
-                        # Dictionary<key,  value> :
-                            string colName = reader.GetName(i);   // কলামের নাম : (key)
-                            object colValue = reader.GetValue(i); // রো অনুযায়ী ভ্যালু : (value)
-
-                            // ডিবাগ লগ
-                            Console.WriteLine($"Index: {i} | Name: {colName} | Value: {colValue}");
-
-                            // ডিকশনারিতে যোগ
-                            data[colName] = colValue;
-                    */
-
                     data.Add(reader.GetName(i), reader.GetValue(i));
                 }
 

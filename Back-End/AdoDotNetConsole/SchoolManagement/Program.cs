@@ -8,11 +8,6 @@ parameters.Add("cgpa", parts[2]);
 
 string connectionString = "Server=ASUS-TUF\\SQLEXPRESS;Database=SchoolManagement;User Id=Practice_Admin;Password=12345678;Trust Server Certificate=True;";
 
-// [NOTE : Non-Query Commands (No Data Returned)]
-/* [NOTE :
-    # Parameterized SQL :
-      for using Parameterized SQL, SQL Injection can not be performed by Hackers.]
-*/
 string insertSql = "INSERT INTO Student(StudentName, StudentAddress, StudentCGPA) VALUES(@name, @address, @cgpa);";
 string updateSql = "UPDATE Student SET StudentName='SLLL' WHERE StudentName='Slll';";
 string deleteSql = "DELETE FROM Student WHERE StudentId=1;";
@@ -27,7 +22,6 @@ int id = int.Parse(Console.ReadLine());
 Dictionary<string, object> parameters2 = new Dictionary<string, object>();
 parameters2.Add("id", id);
 
-// [NOTE : Query Commands (That returns Data)]
 string selectSql = "SELECT * FROM Student;";
 string selectConditionIdSql = "SELECT * FROM Student WHERE StudentId = @id;";
 
